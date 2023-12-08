@@ -10,7 +10,7 @@ class Review extends Model
     use HasFactory;
 
     public $timestamps = false;
-    protected $primaryKey = 'id_rating';
+    protected $primaryKey = 'id';
     protected $fillable = [
         'id_user',
         'id_car',
