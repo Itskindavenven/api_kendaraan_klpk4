@@ -34,9 +34,9 @@ class SubcriptionsController extends Controller
         return response()->json($subcription, 201);
     }
     
-    public function show($id)
+    public function show($id_user)
     {
-        $subcriptions = subscriptions::where('id_user', $id)->get();
+        $subcriptions = subscriptions::where('id_user', $id_user)->get();
         if ($subcriptions->isEmpty()) {
             return response()->json([
             'message'=> 'User tidak ditemukan',

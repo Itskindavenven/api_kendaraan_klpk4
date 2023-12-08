@@ -38,7 +38,7 @@ Route::put('/car/update/{id}', [App\Http\Controllers\CarController::class, 'upda
 
 Route::get('/subscriptions', [App\Http\Controllers\SubcriptionsController::class, 'index']);
 Route::post('/subscriptions', [App\Http\Controllers\SubcriptionsController::class, 'store']);
-Route::get('/subscriptions/{id}', [App\Http\Controllers\SubcriptionsController::class, 'show']);
+Route::get('/subscriptions/{id_user}', [App\Http\Controllers\SubcriptionsController::class, 'show']);
 Route::put('/subscriptions/update/{id}', [App\Http\Controllers\SubcriptionsController::class, 'update']);
 Route::delete('/subscriptions/{id}', [App\Http\Controllers\SubcriptionsController::class, 'destroy']);
 
