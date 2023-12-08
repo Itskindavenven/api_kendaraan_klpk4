@@ -9,6 +9,7 @@ class SubcriptionsController extends Controller
 {
     public function index()
     {
+        //coba
         $subcriptions = subscriptions::all();
         if ($subcriptions->isEmpty()) {
             return response()->json(['error' => 'No subscriptions found'], 404);
@@ -94,6 +95,7 @@ class SubcriptionsController extends Controller
                 'message' => $e->getMessage(),
                 'data' => []
             ], 400);
+            //coba
         }
     }
 }
