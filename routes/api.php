@@ -36,13 +36,6 @@ Route::delete('/car/{id}', [App\Http\Controllers\CarController::class, 'destroy'
 Route::get('/car/{id}', [App\Http\Controllers\CarController::class, 'show']);
 Route::put('/car/update/{id}', [App\Http\Controllers\CarController::class, 'update']);
 
-Route::get('/review', [ReviewController::class, 'index']);
-Route::post('/review', [ReviewController::class, 'store']);
-Route::get('/review/{id_user}', [ReviewController::class, 'fetchAllForUser']);
-Route::get('/review/{id_user}/{id}', [ReviewController::class, 'show']);
-Route::put('/review/{id_user}/{id}', [ReviewController::class, 'update']);
-Route::delete('/review/{id}', [ReviewController::class, 'destroy']);
-
 Route::get('/subscriptions', [App\Http\Controllers\SubcriptionsController::class, 'index']);
 Route::post('/subscriptions', [App\Http\Controllers\SubcriptionsController::class, 'store']);
 Route::get('/subscriptions/{id}', [App\Http\Controllers\SubcriptionsController::class, 'show']);
@@ -54,3 +47,10 @@ Route::post('/ratings', [RatingController::class, 'store']);
 Route::get('/users/{id_user}/ratings/{id}', [RatingController::class, 'show']);
 Route::put('/ratings/{id}', [RatingController::class, 'update']);
 Route::delete('/ratings/{id}', [RatingController::class, 'destroy']);
+
+Route::get('/review', [App\Http\Controllers\ReviewController::class, 'index']);
+Route::post('/review', [App\Http\Controllers\ReviewController::class, 'store']);
+Route::get('/review/{id}', [App\Http\Controllers\ReviewController::class, 'show']);
+Route::put('/review/{id}', [App\Http\Controllers\ReviewController::class, 'update']);
+Route::delete('/review/{id}', [App\Http\Controllers\ReviewController::class, 'destroy']);
+Route::get('/review/user/{id_user}', [App\Http\Controllers\ReviewController::class, 'showAllByUser']);

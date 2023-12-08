@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('id_user');
             $table->unsignedBigInteger('id_car');
-            $table->text('deskripsi');
+            $table->text('komentar');
+            $table->int('nilai');
 
             $table->foreign('id_user')->references('id')->on('users')->onDelete('restrict');
             $table->foreign('id_car')->references('id_car')->on('cars')->onDelete('restrict');

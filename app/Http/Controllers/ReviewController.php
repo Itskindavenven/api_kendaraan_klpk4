@@ -6,25 +6,27 @@ use Illuminate\Http\Request;
 use App\Models\Review;
 use App\Models\Car;
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 
-class ReviewController extends Controller
-{
-    public function index()
-    {
-        $review = Review::all();
-        if ($review->isEmpty()) {
-            return response()->json(['error' => 'No ratings found'], 404);
+class ReviewController extends Controller{
+    
+    public function index(){
+        try{
+            $review = Review::all();
+            return response()->json([
+                "message"=> 'Berhasil ambil data',
+                'data'=> $review
+            ], 200);
+        }catch(\Exception $e){
+            return response()->json([
+                'message'=> $e->getMessage(),
+                'data'=> []
+            ], 400);
         }
-        return response()->json([
-            "status" => true,
-            "message" => 'Berhasil ambil data',
-            "data" => $review
-        ], 200);
     }
 
-    public function fetchAllForUser($id_user)
-    {
-        try {
+    public function showAllByUser($id_user){
+        try{
             $user = User::find($id_user);
 
             if (!$user) {
@@ -34,23 +36,45 @@ class ReviewController extends Controller
                     'data' => null
                 ], 404);
             }
+            $review = Review::where('id_user', $id_user)->get();
+            return response()->json([
+                "message"=> 'Berhasil ambil data',
+                'data'=> $review
+            ], 200);
+        }catch(\Exception $e){
+            return response()->json([
+                'message'=> $e->getMessage(),
+                'data'=> []
+            ], 400);
+        }
+    }
 
-            $review = Review::with('user', 'car')->where('id_user', $id_user)->get();
+    public function store(Request $request){
+        $request->validate([
+            'id_user' => 'required',
+            'id_car' => 'required',
+            'komentar' => 'required',
+            'nilai' => 'required'
+        ]);
 
-            if ($review->isNotEmpty()) {
-                return response()->json([
-                    "status" => true,
-                    "message" => 'Berhasil ambil data',
-                    "data" => $review
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Review masih kosong',
-                    'data' => null
-                ], 500);
-            }
-        } catch (\Exception $e) {
+        $user = User::find($request->id_user);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $car = Car::find($request->id_car);
+        if (!$car) {
+            return response()->json(['error' => 'Car not found'], 404);
+        }
+
+        try{
+            $review = Review::create($request->all());
+            return response()->json([
+                "status" => true,
+                "message" => "Berhasil tambah data",
+                "data" => $review
+            ], 200);
+        }catch(\Exception $e){
             return response()->json([
                 "status" => false,
                 "message" => $e->getMessage(),
@@ -59,78 +83,15 @@ class ReviewController extends Controller
         }
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'id_user' => 'required',
-            'id_car' => 'required',
-            'deskripsi' => 'required'
-        ]);
-
-        $car = Car::find($request->id_car);
-        if (!$car) {
-            return response()->json(['error' => 'Car not found'], 404);
+    public function show($id){
+        $reviews = Review::where('id_car', $id)->get();
+        if ($reviews->isEmpty()) {
+            return response()->json(['error' => 'No reviews found for this car ID'], 404);
         }
-
-        $review = Review::create($request->all());
-        return response()->json($review, 201);
+        return response()->json($reviews);
     }
 
-
-    public function show($id_user, $id)
-    {
-        $user = User::find($id_user);
-
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not found',
-                'data' => null
-            ], 404);
-        }
-
-        $review = Review::find($id);
-
-        if ($review->isEmpty()) {
-            return response()->json(['error' => 'Review Not Found'], 404);
-        }
-        return response()->json([
-                    'status'=> true,
-                    'message'=> 'Berhasil ambil data',
-                    'data'=> $review
-                ], 200);
-    }
-
-    public function update(Request $request,$id_user, $id)
-    {
-        $review = Review::find($id);
-
-        $user = User::find($id_user);
-
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not found',
-                'data' => null
-            ], 404);
-        }
-
-        $request->validate([
-            'id_user' => 'required',
-            'id_car' => 'required',
-            'deskripsi' => 'required'
-        ]);
-
-        $review->update($request->all());
-         return response()->json([
-                'status' => true,
-                'message' => 'Data berhasil diperbarui',
-                'data' => $review
-            ], 200);
-    }
-
-    public function destroy($id)
-    {
+    public function update(Request $request, $id){
         try {
             $review = Review::find($id);
     
@@ -142,6 +103,49 @@ class ReviewController extends Controller
                 ], 404);
             }
     
+            $validator = Validator::make($request->all(), [
+                'id_user' => 'required',
+                'id_car' => 'required',
+                'komentar' => 'required',
+                'nilai' => 'required'
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+    
+            $review->update($request->all());
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Data berhasil diperbarui',
+                'data' => $review
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 400);
+        }
+    }
+
+    public function destroy($id){
+        try {
+            $review = Review::find($id);
+    
+            if (!$review) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data not found',
+                    'data' => null
+                ], 404);
+            }
+            print("sampe siniiii");
             $review->delete();
     
             return response()->json([
