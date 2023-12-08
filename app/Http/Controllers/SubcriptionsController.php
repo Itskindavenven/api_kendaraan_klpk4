@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\subscriptions;
+use App\Models\Subscriptions;
 
 class SubcriptionsController extends Controller
 {
     public function index()
     {
         //coba
-        $subcriptions = subscriptions::all();
+        $subcriptions = Subscriptions::all();
         if ($subcriptions->isEmpty()) {
             return response()->json(['error' => 'No subscriptions found'], 404);
         }
@@ -31,13 +31,13 @@ class SubcriptionsController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
     
-        $subcription = subscriptions::create($request->all());
+        $subcription = Subscriptions::create($request->all());
         return response()->json($subcription, 201);
     }
     
     public function show($id_user)
     {
-        $subcriptions = subscriptions::where('id_user', $id_user)->get();
+        $subcriptions = Subscriptions::where('id_user', $id_user)->get();
         if ($subcriptions->isEmpty()) {
             return response()->json([
             'message'=> 'User tidak ditemukan',
@@ -64,7 +64,7 @@ class SubcriptionsController extends Controller
         //     return response()->json(['error' => 'User not found'], 404);
         // }
     
-        $subcription = subscriptions::find($id);
+        $subcription = Subscriptions::find($id);
         $subcription->update($request->all());
         return response()->json($subcription, 200);
     }    
@@ -72,7 +72,7 @@ class SubcriptionsController extends Controller
     public function destroy($id)
     {
         try {
-            $subs = subscriptions::find($id);
+            $subs = Subscriptions::find($id);
     
             if (!$subs) {
                 return response()->json([
