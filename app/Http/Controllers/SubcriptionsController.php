@@ -38,9 +38,16 @@ class SubcriptionsController extends Controller
     {
         $subcriptions = subscriptions::where('id_user', $id)->get();
         if ($subcriptions->isEmpty()) {
-            return response()->json(['error' => 'No subscriptions found for this user'], 404);
+            return response()->json([
+            'message'=> 'User tidak ditemukan',
+            'data'=> null
+        ], 404);
         }
-        return response()->json($subcriptions);
+        return response()->json([
+            
+                'message'=> 'Berhasil ambil subs',
+                'data'=> $subcriptions
+        ], 200);
     }
     public function update(Request $request, $id)
     {
@@ -51,19 +58,42 @@ class SubcriptionsController extends Controller
             'deskripsi' => 'required',
         ]);
     
-        $user = User::find($request->id_user);
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
+        // $user = User::find($request->id_user);
+        // if (!$user) {
+        //     return response()->json(['error' => 'User not found'], 404);
+        // }
     
-        $subcription = subscriptions::findOrFail($id);
+        $subcription = subscriptions::find($id);
         $subcription->update($request->all());
         return response()->json($subcription, 200);
     }    
 
     public function destroy($id)
     {
-        subscriptions::destroy($id);
-        return response()->json(null, 204);
+        try {
+            $subs = subscriptions::find($id);
+    
+            if (!$subs) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data not found',
+                    'data' => null
+                ], 404);
+            }
+    
+            $subs->delete();
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Data berhasil dihapus',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 400);
+        }
     }
 }

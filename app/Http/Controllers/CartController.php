@@ -66,6 +66,7 @@ class CartController extends Controller
             'price' => 'required',
             'pickup_date' => 'required|date',
             'return_date' => 'required|date',
+            'location' => 'required',
         ]);
 
         try{
@@ -89,10 +90,21 @@ class CartController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($id_user, $id)
     {
         try{
-            $cart = Cart::with('user', 'car')->find($id);
+            $user = User::find($id_user);
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                    'data' => null
+                ], 404);
+            }
+
+            $carts = Cart::with('user', 'car')->where('id_user', $id_user)->get();
+            $cart = Cart::find($id);
 
             if($cart){
                 return response()->json([

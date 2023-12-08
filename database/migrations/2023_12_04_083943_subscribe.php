@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id('id_subs');
-            $table->foreignId('id_user')->constrained('users');
+            $table->foreignId('id_user')->constrained('users')->references('id')->on('users')->onDelete('cascade');
             $table->string('tipe');
-            $table->float('harga');
+            $table->integer('harga');
             $table->string('deskripsi');
         });
     }

@@ -9,6 +9,7 @@ class subscriptions extends Model
 {
     use HasFactory;
     public $timestamps = false;
+    protected $primaryKey = 'id_subs';
     protected $fillable = [
         'id_user',
         'tipe',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -29,11 +30,11 @@ class UserController extends Controller
 {
     $request->validate([
         'username' => 'required',
-        'email' => 'required|email',
-        'password' => 'required',
-        'noTelp' => 'required',
-        'tglLahir' => 'required',
-        'image' => 'required'
+        // 'email' => 'required|email',
+        // 'password' => 'required',
+        // 'noTelp' => 'required',
+        // 'tglLahir' => 'required',
+        // 'image' => 'required'
     ]);
 
     try{
@@ -205,6 +206,53 @@ class UserController extends Controller
                 'data'=> []
             ], 400);
         }
+    }
+
+    public function updateProfile(Request $request, $email)
+    {
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|mimes:jpeg,png,jpg,gif,svg|max:5048',
+        ]);
+        if ($validator->fails()) {
+            return response(['message' => $validator->errors()], 400);
+        }
+        $user = User::where('email', $email)->first();
+        if (is_null($user)) {
+            return response([
+                'message' => 'User Not Found',
+                'data' => null,
+            ], 404);
+        }
+        try {
+            //create new image name to be saved
+            $newImageName = $email  . "." . $request->image->extension();
+
+            //move image to public/profiles
+            $request->image->move(public_path('profiles'), $newImageName);
+
+            //update profile_path in database
+            $user->update(['image' => $newImageName]);
+            return response([
+                'message' => 'Success',
+                'data' => $user,
+            ], 200);
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Error when saving image to database',
+                'data' => null,
+            ], 400);
+        }
+    }
+
+    public function getProfile($email){
+        $user = User::where('email', $email)->first();
+        if(is_null($user)){
+            return response([
+                'message' => 'User not found',
+                'data' => null
+            ], 404);
+        }
+        return response()->file(public_path('profiles/').$user['image']);
     }
 
 

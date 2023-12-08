@@ -20,9 +20,9 @@ class RatingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'id_user' => 'required',
             'id_car' => 'required',
-            'deskripsi' => 'required',
-            'bintang' => 'required'
+            'deskripsi' => 'required'
         ]);
 
         $car = Car::find($request->id_car);
@@ -37,29 +37,52 @@ class RatingController extends Controller
 
     public function show($id)
     {
-        $ratings = Rating::where('id_car', $id)->get();
-        if ($ratings->isEmpty()) {
-            return response()->json(['error' => 'No ratings found for this car ID'], 404);
+        $rating = Rating::find($id);
+        if ($rating->isEmpty()) {
+            return response()->json(['error' => 'Rating Not Found'], 404);
         }
-        return response()->json($ratings);
+        return response()->json($rating);
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
+            'id_user' => 'required',
             'id_car' => 'required',
-            'deskripsi' => 'required',
-            'bintang' => 'required'
+            'deskripsi' => 'required'
         ]);
 
-        $rating = Rating::findOrFail($id);
+        $rating = Rating::find($id);
         $rating->update($request->all());
         return response()->json($rating, 200);
     }
 
     public function destroy($id)
     {
-        Rating::destroy($id);
-        return response()->json(null, 204);
+        try {
+            $rating = Rating::find($id);
+    
+            if (!$rating) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data not found',
+                    'data' => null
+                ], 404);
+            }
+    
+            $rating->delete();
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Data berhasil dihapus',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 400);
+        }
     }
 }

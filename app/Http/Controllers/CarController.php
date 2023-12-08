@@ -8,13 +8,31 @@ use App\Models\Car;
 class CarController extends Controller
 {
     public function index()
-    {
+{
+    try {
         $cars = Car::all();
-        if($cars->isEmpty()){
-            return response()->json(['message' => 'No cars found'], 404);
+        if ($cars->isNotEmpty()) {
+            return response()->json([
+                "status" => true,
+                "message" => 'Berhasil ambil data',
+                "data" => $cars
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Tidak ada mobil yang ditemukan',
+                'data' => null
+            ], 500);
         }
-        return response()->json($cars);
+    } catch (\Exception $e) {
+        return response()->json([
+            "status" => false,
+            "message" => $e->getMessage(),
+            "data" => []
+        ], 400);
     }
+}
+
 
     public function store(Request $request)
     {
@@ -24,12 +42,30 @@ class CarController extends Controller
 
     public function show($id)
     {
-        $car = Car::find($id);
-        if(!$car){
-            return response()->json(['message' => 'Car not found'], 404);
+        try {
+            $car = Car::find($id);
+            if ($car) {
+                return response()->json([
+                    "status" => true,
+                    "message" => 'Berhasil ambil data',
+                    "data" => $car
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Mobil tidak ditemukan',
+                    'data' => null
+                ], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                "status" => false,
+                "message" => $e->getMessage(),
+                "data" => []
+            ], 400);
         }
-        return response()->json($car);
     }
+
 
     public function update(Request $request, $id)
     {
